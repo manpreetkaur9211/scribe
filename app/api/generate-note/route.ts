@@ -32,8 +32,8 @@ export async function POST(request: Request): Promise<Response> {
   const result = await streamText({
     model: anthropic('claude-sonnet-4-6'),
     prompt,
-    maxTokens: 1024,
+    maxOutputTokens: 1024,
   })
 
-  return result.toDataStreamResponse()
+  return result.toTextStreamResponse()
 }

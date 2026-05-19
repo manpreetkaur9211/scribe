@@ -1,0 +1,20 @@
+'use client'
+
+import { useState } from 'react'
+import { LandingView } from './LandingView'
+import { Workspace } from './Workspace'
+import type { AppMode } from '@/types/workspace'
+
+export function AppShell() {
+  const [mode, setMode] = useState<AppMode>('landing')
+
+  return (
+    <div className="min-h-screen">
+      {mode === 'landing' ? (
+        <LandingView onSelectMode={setMode} />
+      ) : (
+        <Workspace mode={mode} />
+      )}
+    </div>
+  )
+}

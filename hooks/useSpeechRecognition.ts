@@ -1,6 +1,11 @@
 'use client'
 
 import { useCallback, useEffect, useRef } from 'react'
+import type {
+  SpeechRecognitionInstance,
+  SpeechRecognitionResultEvent,
+  SpeechRecognitionErrorResultEvent,
+} from '@/types/workspace'
 
 interface SpeechRecognitionOptions {
   onPartial: (text: string) => void
@@ -9,7 +14,7 @@ interface SpeechRecognitionOptions {
 }
 
 export function useSpeechRecognition({ onPartial, onFinal, onError }: SpeechRecognitionOptions) {
-  const recognitionRef = useRef<InstanceType<typeof SpeechRecognition> | null>(null)
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
 
   const SpeechRecognitionClass =
     typeof window !== 'undefined'
@@ -25,9 +30,9 @@ export function useSpeechRecognition({ onPartial, onFinal, onError }: SpeechReco
     recognition.interimResults = true
     recognition.lang = 'en-AU'
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: SpeechRecognitionResultEvent) => {
       const result = event.results[event.resultIndex]
-      const text = result[0].transcript
+      const text = (result[0] as SpeechRecognitionAlternative).transcript
       if (result.isFinal) {
         onFinal(text)
       } else {
@@ -35,7 +40,7 @@ export function useSpeechRecognition({ onPartial, onFinal, onError }: SpeechReco
       }
     }
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (event: SpeechRecognitionErrorResultEvent) => {
       onError(event.error)
     }
 

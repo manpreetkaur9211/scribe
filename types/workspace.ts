@@ -50,6 +50,28 @@ export interface DemoScript {
 
 declare global {
   interface Window {
-    webkitSpeechRecognition: typeof SpeechRecognition
+    SpeechRecognition: new () => SpeechRecognitionInstance
+    webkitSpeechRecognition: new () => SpeechRecognitionInstance
   }
+}
+
+export interface SpeechRecognitionInstance {
+  continuous: boolean
+  interimResults: boolean
+  lang: string
+  start(): void
+  stop(): void
+  abort(): void
+  onresult: ((event: SpeechRecognitionResultEvent) => void) | null
+  onerror: ((event: SpeechRecognitionErrorResultEvent) => void) | null
+  onend: (() => void) | null
+}
+
+export interface SpeechRecognitionResultEvent {
+  results: SpeechRecognitionResultList
+  resultIndex: number
+}
+
+export interface SpeechRecognitionErrorResultEvent {
+  error: string
 }
