@@ -207,7 +207,7 @@ export function Workspace({ mode }: WorkspaceProps) {
           <span className="text-slate-800">Clin</span>
           <span className="text-[#7c3aed]">Scribe</span>
         </span>
-        <TemplateSelector value={template} note={note} onChange={handleTemplateChange} />
+        <TemplateSelector value={template} transcript={transcript} note={note} onChange={handleTemplateChange} />
       </div>
 
       {/* Split panels */}

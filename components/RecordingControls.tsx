@@ -45,19 +45,14 @@ export function RecordingControls({
       {transcript.status === 'recording' && (
         <>
           <PrimaryButton onClick={onStopRecording} disabled={isGenerating}>
-            Stop &amp; Generate Note
+            Stop Recording
           </PrimaryButton>
           <GhostButton onClick={onCancelRecording}>Cancel</GhostButton>
         </>
       )}
 
       {transcript.status === 'demo-playing' && (
-        <>
-          <PrimaryButton onClick={onGenerateNote} disabled={isGenerating}>
-            Generate Note
-          </PrimaryButton>
-          <GhostButton onClick={onStopDemo}>Stop Demo</GhostButton>
-        </>
+        <GhostButton onClick={onStopDemo}>Stop Demo</GhostButton>
       )}
 
       {transcript.status === 'done' && (

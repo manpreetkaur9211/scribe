@@ -1,4 +1,4 @@
-import type { NoteState, TemplateId } from '@/types/workspace'
+import type { NoteState, TemplateId, TranscriptState } from '@/types/workspace'
 
 const TEMPLATES: { id: TemplateId; label: string }[] = [
   { id: 'gp-note', label: 'GP Note' },
@@ -8,12 +8,13 @@ const TEMPLATES: { id: TemplateId; label: string }[] = [
 
 interface TemplateSelectorProps {
   value: TemplateId
+  transcript: TranscriptState
   note: NoteState
   onChange: (template: TemplateId) => void
 }
 
-export function TemplateSelector({ value, note, onChange }: TemplateSelectorProps) {
-  const isDisabled = note.status === 'streaming'
+export function TemplateSelector({ value, transcript, note, onChange }: TemplateSelectorProps) {
+  const isDisabled = note.status === 'streaming' || transcript.status === 'demo-playing'
 
   return (
     <div className="flex items-center gap-2">
