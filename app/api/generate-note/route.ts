@@ -29,11 +29,17 @@ export async function POST(request: Request): Promise<Response> {
   const { transcript, template } = parsed.data
   const prompt = buildNotePrompt(template, transcript)
 
-  const result = await streamText({
-    model: anthropic('anthropic.claude-sonnet-4-6-20251001-v1:0'),
-    prompt,
-    maxOutputTokens: 1024,
-  })
+  let result
+  try {
+    result = await streamText({
+      model: anthropic('anthropic.claude-sonnet-4-6-20251001-v1:0'),
+      prompt,
+      maxOutputTokens: 1024,
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Model request failed'
+    return Response.json({ data: null, error: message }, { status: 502 })
+  }
 
   return result.toTextStreamResponse()
 }

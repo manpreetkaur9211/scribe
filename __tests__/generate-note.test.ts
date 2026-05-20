@@ -74,3 +74,24 @@ describe('POST /api/generate-note', () => {
     expect(res.status).toBe(200)
   })
 })
+
+describe('POST /api/generate-note — model error', () => {
+  it('returns 502 with JSON error when streamText throws', async () => {
+    const { streamText } = await import('ai')
+    vi.mocked(streamText).mockRejectedValueOnce(new Error('Bedrock throttled'))
+
+    const { POST } = await import('../app/api/generate-note/route')
+    const req = new Request('http://localhost/api/generate-note', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transcript: 'Patient is a 45 year old male with chest pain for 3 days',
+        template: 'gp-note',
+      }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(502)
+    const body = await res.json()
+    expect(body.error).toBe('Bedrock throttled')
+  })
+})
