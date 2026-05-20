@@ -1,7 +1,7 @@
 'use client'
 // uses useReducer, useRef — browser-only React hooks
 
-import { useCallback, useReducer, useRef } from 'react'
+import { useCallback, useEffect, useReducer, useRef } from 'react'
 
 export type ToastType = 'success' | 'error'
 
@@ -26,11 +26,17 @@ function toastReducer(state: Toast[], action: ToastAction): Toast[] {
   }
 }
 
-let counter = 0
-
 export function useToast() {
+  const counterRef = useRef(0)
   const [toasts, dispatch] = useReducer(toastReducer, [])
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout)
+      timersRef.current.clear()
+    }
+  }, [])
 
   const dismiss = useCallback((id: string) => {
     const timer = timersRef.current.get(id)
@@ -42,7 +48,7 @@ export function useToast() {
   }, [])
 
   const toast = useCallback(({ type, message }: { type: ToastType; message: string }) => {
-    const id = `toast-${++counter}`
+    const id = `toast-${++counterRef.current}`
     dispatch({ type: 'ADD', toast: { id, type, message } })
     if (type === 'success') {
       const timer = setTimeout(() => {
