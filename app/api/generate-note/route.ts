@@ -30,7 +30,7 @@ export async function POST(request: Request): Promise<Response> {
   const prompt = buildNotePrompt(template, transcript)
 
   const result = await streamText({
-    model: anthropic('claude-sonnet-4-6'),
+    model: anthropic('anthropic.claude-sonnet-4-6-20251001-v1:0'),
     prompt,
     maxOutputTokens: 1024,
   })

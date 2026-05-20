@@ -1,7 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 
 vi.mock('../lib/env', () => ({
-  env: { ANTHROPIC_API_KEY: 'sk-ant-test' },
+  env: {
+    AWS_ACCESS_KEY_ID: 'AKIAIOSFODNN7EXAMPLE',
+    AWS_SECRET_ACCESS_KEY: 'test-secret',
+    AWS_REGION: 'us-east-1',
+  },
 }))
 
 vi.mock('ai', () => ({
@@ -14,8 +18,8 @@ vi.mock('ai', () => ({
   }),
 }))
 
-vi.mock('@ai-sdk/anthropic', () => ({
-  createAnthropic: () => () => 'mocked-model',
+vi.mock('@ai-sdk/amazon-bedrock', () => ({
+  createAmazonBedrock: () => () => 'mocked-model',
 }))
 
 describe('POST /api/generate-note', () => {
