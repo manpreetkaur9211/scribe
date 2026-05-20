@@ -55,4 +55,17 @@ describe('useToast', () => {
     })
     expect(result.current.toasts).toHaveLength(2)
   })
+
+  it('cancels auto-dismiss timer when success toast is manually dismissed early', () => {
+    const { result } = renderHook(() => useToast())
+    act(() => result.current.toast({ type: 'success', message: 'Copied!' }))
+    expect(result.current.toasts).toHaveLength(1)
+    const id = result.current.toasts[0].id
+    // dismiss before the 4s timer fires
+    act(() => result.current.dismiss(id))
+    expect(result.current.toasts).toHaveLength(0)
+    // advance past 4s — timer should not re-add or error
+    act(() => vi.advanceTimersByTime(5000))
+    expect(result.current.toasts).toHaveLength(0)
+  })
 })

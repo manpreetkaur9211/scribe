@@ -1,4 +1,5 @@
 'use client'
+// uses useReducer, useRef — browser-only React hooks
 
 import { useCallback, useReducer, useRef } from 'react'
 
