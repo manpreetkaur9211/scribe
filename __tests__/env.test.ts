@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 
 describe('env validation', () => {
-  beforeEach(() => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
     vi.resetModules()
   })
 
