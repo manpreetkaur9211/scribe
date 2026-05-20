@@ -55,8 +55,8 @@ export function Workspace({ mode }: WorkspaceProps) {
     reset()
   }, [stopSpeech, reset])
 
-  const handleStartDemo = useCallback(async () => {
-    const script = getDemoScriptByTemplate(template)
+  const handleStartDemo = useCallback(async (templateOverride?: TemplateId) => {
+    const script = getDemoScriptByTemplate(templateOverride ?? template)
     const abort = new AbortController()
     demoAbortRef.current = abort
     startDemo()
@@ -165,10 +165,17 @@ export function Workspace({ mode }: WorkspaceProps) {
 
   const handleTemplateChange = useCallback((t: TemplateId) => {
     setTemplate(t)
+    if (transcript.status === 'demo-playing' || (transcript.status === 'done' && mode === 'demo')) {
+      // abort any in-flight demo stream and restart with the new template
+      demoAbortRef.current?.abort()
+      reset()
+      handleStartDemo(t)
+      return
+    }
     if (note.status === 'done' || note.status === 'editing') {
       reset()
     }
-  }, [note.status, reset])
+  }, [transcript.status, mode, note.status, reset, handleStartDemo])
 
   // Keyboard shortcuts
   useEffect(() => {
