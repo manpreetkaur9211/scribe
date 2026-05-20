@@ -1,14 +1,18 @@
 'use client'
+// owns browser state: speech recognition lifecycle, streaming fetch loops, keyboard shortcuts
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWorkspace } from '@/hooks/useWorkspace'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
+import { useToast } from '@/hooks/useToast'
 import { TranscriptPanel } from './TranscriptPanel'
 import { NotePanel } from './NotePanel'
 import { RecordingControls } from './RecordingControls'
 import { TemplateSelector } from './TemplateSelector'
+import { Toast } from './Toast'
 import type { AppMode, TemplateId } from '@/types/workspace'
 import { getDemoScript } from '@/lib/demo-scripts'
+import { parseCompleteSections, parseFinalSection } from '@/lib/parse-note-stream'
 
 interface WorkspaceProps {
   mode: Exclude<AppMode, 'landing'>
@@ -24,13 +28,16 @@ export function Workspace({ mode }: WorkspaceProps) {
     startEditing, stopEditing, updateSection, setNoteError, reset,
   } = useWorkspace(mode)
 
+  const { toasts, toast, dismiss } = useToast()
+
   const demoAbortRef = useRef<AbortController | null>(null)
   const demoStartedRef = useRef(false)
 
   const { isSupported, start: startSpeech, stop: stopSpeech } = useSpeechRecognition({
     onPartial: appendPartial,
     onFinal: appendFinal,
-    onError: (err) => console.warn('Speech recognition error:', err),
+    // Gap 3 fixed: speech errors now surface as toast
+    onError: (err) => toast({ type: 'error', message: `Microphone error: ${err}` }),
   })
 
   const handleStartRecording = useCallback(() => {
@@ -74,9 +81,12 @@ export function Workspace({ mode }: WorkspaceProps) {
         }
       }
     } catch (e) {
-      if ((e as Error).name !== 'AbortError') finishDemo()
+      if ((e as Error).name === 'AbortError') return
+      // Gap 4 fixed: demo stream errors now surface as toast
+      finishDemo()
+      toast({ type: 'error', message: 'Demo failed to load — please try again' })
     }
-  }, [startDemo, advanceDemoCursor, finishDemo])
+  }, [startDemo, advanceDemoCursor, finishDemo, toast])
 
   const handleStopDemo = useCallback(() => {
     demoAbortRef.current?.abort()
@@ -103,30 +113,56 @@ export function Workspace({ mode }: WorkspaceProps) {
 
       if (!res.ok) {
         const body = await res.json() as { error?: string }
-        setNoteError(body.error ?? 'Failed to generate note')
+        const message = body.error ?? 'Failed to generate note'
+        setNoteError(message)
+        // Gap 6 fixed: inline note error also shown as toast
+        toast({ type: 'error', message })
         return
       }
 
       const reader = res.body?.getReader()
-      if (!reader) return
+      if (!reader) {
+        // Gap 2 fixed: null reader exits streaming state with an error
+        const message = 'Streaming unavailable — please try again'
+        setNoteError(message)
+        toast({ type: 'error', message })
+        return
+      }
+
       const decoder = new TextDecoder()
       let buffer = ''
+      let offset = 0
 
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
         buffer += decoder.decode(value, { stream: true })
-        const sentinelRegex = /\[SECTION:(\w+)\]([\s\S]*?)(?=\[SECTION:|$)/g
-        let match
-        while ((match = sentinelRegex.exec(buffer)) !== null) {
-          appendNoteSection(match[1], match[2].trim())
+        const { updates, newOffset } = parseCompleteSections(buffer, offset)
+        offset = newOffset
+        for (const { key, content } of updates) {
+          appendNoteSection(key, content)
         }
       }
+      const final = parseFinalSection(buffer)
+      if (final) appendNoteSection(final.key, final.content)
       completeNote()
     } catch {
-      setNoteError('Network error — please try again')
+      // Gap 6 fixed: network errors shown as toast in addition to inline state
+      const message = 'Network error — please try again'
+      setNoteError(message)
+      toast({ type: 'error', message })
     }
-  }, [transcript, template, startNoteGeneration, appendNoteSection, completeNote, setNoteError])
+  }, [transcript, template, startNoteGeneration, appendNoteSection, completeNote, setNoteError, toast])
+
+  const handleCopyNote = useCallback(async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      // Gap 5 fixed: clipboard copy success confirmed via toast
+      toast({ type: 'success', message: 'Note copied to clipboard' })
+    } catch {
+      toast({ type: 'error', message: 'Failed to copy — please copy manually' })
+    }
+  }, [toast])
 
   const handleTemplateChange = useCallback((t: TemplateId) => {
     setTemplate(t)
@@ -204,6 +240,7 @@ export function Workspace({ mode }: WorkspaceProps) {
             onStartEditing={startEditing}
             onStopEditing={stopEditing}
             onUpdateSection={updateSection}
+            onCopy={handleCopyNote}
           />
         </div>
       </div>
@@ -214,6 +251,9 @@ export function Workspace({ mode }: WorkspaceProps) {
           Web Speech API is not supported in this browser. Try Chrome or Edge.
         </div>
       )}
+
+      {/* Toast notifications */}
+      <Toast toasts={toasts} onDismiss={dismiss} />
     </div>
   )
 }

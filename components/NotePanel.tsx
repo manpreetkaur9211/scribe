@@ -1,4 +1,5 @@
 'use client'
+// contentEditable refs and clipboard API require DOM access
 
 import { useCallback, useRef } from 'react'
 import type { NoteState, TemplateId } from '@/types/workspace'
@@ -10,6 +11,7 @@ interface NotePanelProps {
   onStartEditing: () => void
   onStopEditing: () => void
   onUpdateSection: (key: string, content: string) => void
+  onCopy: (text: string) => void
 }
 
 export function NotePanel({
@@ -18,18 +20,19 @@ export function NotePanel({
   onStartEditing,
   onStopEditing,
   onUpdateSection,
+  onCopy,
 }: NotePanelProps) {
   const sectionKeys = getSectionKeys(template)
   const labels = SECTION_LABELS[template]
 
-  const handleCopy = useCallback(async () => {
+  const handleCopy = useCallback(() => {
     if (note.status !== 'done' && note.status !== 'editing') return
     const sections = note.sections as Record<string, string>
     const text = sectionKeys
       .map(key => `${labels[key].toUpperCase()}\n${sections[key] ?? ''}`)
       .join('\n\n')
-    await navigator.clipboard.writeText(text)
-  }, [note, sectionKeys, labels])
+    onCopy(text)
+  }, [note, sectionKeys, labels, onCopy])
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -42,7 +45,6 @@ export function NotePanel({
             onClick={handleCopy}
             className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
             aria-label="Copy full note to clipboard"
-            aria-keyshortcuts="Control+Shift+C Meta+Shift+C"
           >
             <CopyIcon />
             Copy Note
@@ -73,14 +75,15 @@ export function NotePanel({
             return (
               <NoteSection
                 key={key}
-                label={labels[key]}
+                label={labels[key] ?? key}
                 content={content ?? ''}
                 isStreaming={isStreaming}
                 isEditable={isEditable}
                 onFocus={onStartEditing}
-                onBlur={(val) => {
+                onBlur={(val, relatedTarget) => {
                   onUpdateSection(key, val)
-                  onStopEditing()
+                  const stayingInPanel = relatedTarget instanceof HTMLElement && relatedTarget.isContentEditable
+                  if (!stayingInPanel) onStopEditing()
                 }}
               />
             )
@@ -96,7 +99,7 @@ interface NoteSectionProps {
   isStreaming: boolean
   isEditable: boolean
   onFocus: () => void
-  onBlur: (value: string) => void
+  onBlur: (value: string, relatedTarget: EventTarget | null) => void
 }
 
 function NoteSection({ label, content, isStreaming, isEditable, onFocus, onBlur }: NoteSectionProps) {
@@ -118,7 +121,7 @@ function NoteSection({ label, content, isStreaming, isEditable, onFocus, onBlur 
           contentEditable={isEditable}
           suppressContentEditableWarning
           onFocus={onFocus}
-          onBlur={() => onBlur(ref.current?.innerText ?? '')}
+          onBlur={(e) => onBlur(ref.current?.innerText ?? '', e.relatedTarget)}
           className={`text-sm text-slate-700 leading-relaxed whitespace-pre-wrap min-h-[1.5rem] rounded px-1 -mx-1 ${
             isEditable
               ? 'outline outline-2 outline-violet-300 bg-violet-50 cursor-text'
