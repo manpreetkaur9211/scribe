@@ -32,7 +32,7 @@ export async function POST(request: Request): Promise<Response> {
   let result
   try {
     result = await streamText({
-      model: anthropic('anthropic.claude-sonnet-4-6-20251001-v1:0'),
+      model: anthropic('global.anthropic.claude-opus-4-6-v1'),
       prompt,
       maxOutputTokens: 1024,
     })

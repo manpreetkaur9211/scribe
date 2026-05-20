@@ -1,4 +1,5 @@
 'use client'
+// useReducer and dispatch callbacks must live in the browser — server components have no state
 
 import { useCallback, useReducer } from 'react'
 import type { AppMode, NoteState, NoteSections, TranscriptState } from '@/types/workspace'

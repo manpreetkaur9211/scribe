@@ -1,4 +1,5 @@
 'use client'
+// owns the top-level mode state (landing / live / demo) — must be interactive
 
 import { useState } from 'react'
 import { LandingView } from './LandingView'

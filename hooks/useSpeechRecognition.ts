@@ -1,4 +1,5 @@
 'use client'
+// Web Speech API is browser-only — window.SpeechRecognition does not exist on the server
 
 import { useCallback, useEffect, useRef } from 'react'
 import type {

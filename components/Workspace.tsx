@@ -231,7 +231,7 @@ export function Workspace({ mode }: WorkspaceProps) {
             onStartRecording={handleStartRecording}
             onStopRecording={handleStopRecording}
             onCancelRecording={handleCancelRecording}
-            onStartDemo={handleStartDemo}
+            onStartDemo={() => handleStartDemo()}
             onStopDemo={handleStopDemo}
             onGenerateNote={handleGenerateNote}
             onReset={reset}
