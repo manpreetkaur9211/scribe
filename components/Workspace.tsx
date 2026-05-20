@@ -11,7 +11,7 @@ import { RecordingControls } from './RecordingControls'
 import { TemplateSelector } from './TemplateSelector'
 import { Toast } from './Toast'
 import type { AppMode, TemplateId } from '@/types/workspace'
-import { getDemoScript } from '@/lib/demo-scripts'
+import { getDemoScriptByTemplate } from '@/lib/demo-scripts'
 import { parseCompleteSections, parseFinalSection } from '@/lib/parse-note-stream'
 
 interface WorkspaceProps {
@@ -56,8 +56,7 @@ export function Workspace({ mode }: WorkspaceProps) {
   }, [stopSpeech, reset])
 
   const handleStartDemo = useCallback(async () => {
-    const script = getDemoScript('gp-chest-pain')
-    setTemplate(script.defaultTemplate)
+    const script = getDemoScriptByTemplate(template)
     const abort = new AbortController()
     demoAbortRef.current = abort
     startDemo()
@@ -86,7 +85,7 @@ export function Workspace({ mode }: WorkspaceProps) {
       finishDemo()
       toast({ type: 'error', message: 'Demo failed to load — please try again' })
     }
-  }, [startDemo, advanceDemoCursor, finishDemo, toast])
+  }, [template, startDemo, advanceDemoCursor, finishDemo, toast])
 
   const handleStopDemo = useCallback(() => {
     demoAbortRef.current?.abort()

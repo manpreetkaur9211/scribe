@@ -1,4 +1,4 @@
-import type { DemoScript, DemoScriptId } from '@/types/workspace'
+import type { DemoScript, DemoScriptId, TemplateId } from '@/types/workspace'
 
 export const demoScripts: DemoScript[] = [
   {
@@ -22,4 +22,8 @@ export function getDemoScript(id: DemoScriptId): DemoScript {
   const script = demoScripts.find(s => s.id === id)
   if (!script) throw new Error(`Demo script not found: ${id}`)
   return script
+}
+
+export function getDemoScriptByTemplate(template: TemplateId): DemoScript {
+  return demoScripts.find(s => s.defaultTemplate === template) ?? demoScripts[0]
 }
