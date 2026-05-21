@@ -23,10 +23,9 @@ export function LandingView({ onSelectMode }: LandingViewProps) {
         </div>
 
         <p className="mb-12 text-center text-slate-400 text-lg max-w-md leading-relaxed">
-          Real-time AI clinical note generation.
+          Speak. Done. Notes written.
           <br />
-          A prototype of{' '}
-          <span className="text-white">Heidi&apos;s</span> core scribe workflow.
+          Real-time AI scribe for clinical consultations.
         </p>
 
         <div className="flex gap-4 w-full max-w-sm">
@@ -63,9 +62,9 @@ export function LandingView({ onSelectMode }: LandingViewProps) {
         >
           Manpreet Kaur
         </a>{' '}
-        — applying to Heidi ·{' '}
+        ·{' '}
         <a
-          href="https://github.com/manpreet-kaur/clinscribe-preview"
+          href="https://github.com/manpreetkaur9211/scribe-note"
           className="underline hover:text-slate-300 transition-colors"
           target="_blank"
           rel="noopener noreferrer"
