@@ -75,4 +75,4 @@ This prototype uses Web Speech API and simulated SSE for speech input. A product
 
 ---
 
-*Built by [Manpreet Kaur](https://linkedin.com/in/manpreet-kaur) as a showcase for Senior Full Stack Engineer role.*
+*Built by [Manpreet Kaur](https://www.linkedin.com/in/kaurmanpreet921/) as a showcase for Senior Full Stack Engineer role.*
