@@ -1,10 +1,10 @@
 # ClinScribe Preview
 
-Real-time AI clinical note generation from speech — a working prototype of [Heidi](https://heidihealth.com)'s core scribe workflow.
+Real-time AI clinical note generation from speech — a working prototype of core Clinical scribe workflow.
 
 A clinician speaks (or runs a demo consultation), and a structured clinical note streams into view in real-time using the Claude API. The note is editable inline and copyable to clipboard.
 
-**[→ Live demo](https://clinscribe.vercel.app)**
+**[→ Live demo](https://scribe-black.vercel.app/)**
 
 ---
 
@@ -46,8 +46,8 @@ The AI note generation uses sentinel-based streaming: Claude outputs `[SECTION:c
 ## Local setup
 
 ```bash
-git clone https://github.com/manpreet-kaur/clinscribe-preview
-cd clinscribe-preview
+git clone https://github.com/manpreetkaur9211/scribe
+cd scribe
 npm install
 cp .env.example .env.local
 # Edit .env.local and add your ANTHROPIC_API_KEY
@@ -75,4 +75,4 @@ This prototype uses Web Speech API and simulated SSE for speech input. A product
 
 ---
 
-*Built by [Manpreet Kaur](https://linkedin.com/in/manpreet-kaur) as a showcase for the Heidi Senior Full Stack Engineer role.*
+*Built by [Manpreet Kaur](https://linkedin.com/in/manpreet-kaur) as a showcase for Senior Full Stack Engineer role.*
