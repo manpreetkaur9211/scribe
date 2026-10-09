@@ -16,9 +16,10 @@ import { parseCompleteSections, parseFinalSection } from '@/lib/parse-note-strea
 
 interface WorkspaceProps {
   mode: Exclude<AppMode, 'landing'>
+  onHome: () => void
 }
 
-export function Workspace({ mode }: WorkspaceProps) {
+export function Workspace({ mode, onHome }: WorkspaceProps) {
   const [template, setTemplate] = useState<TemplateId>('gp-note')
   const {
     transcript, note,
@@ -65,14 +66,18 @@ export function Workspace({ mode }: WorkspaceProps) {
       const res = await fetch(`/api/demo-transcript?script=${script.id}`, {
         signal: abort.signal,
       })
+      if (!res.ok) throw new Error('Demo request failed')
       const reader = res.body?.getReader()
-      if (!reader) return
+      if (!reader) throw new Error('Demo stream unavailable')
       const decoder = new TextDecoder()
+      let pending = ''
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
-        const chunk = decoder.decode(value, { stream: true })
-        const lines = chunk.split('\n').filter(l => l.startsWith('data: '))
+        pending += decoder.decode(value, { stream: true })
+        const completeLines = pending.split('\n')
+        pending = completeLines.pop() ?? ''
+        const lines = completeLines.filter(l => l.startsWith('data: '))
         for (const line of lines) {
           const json = JSON.parse(line.slice(6)) as { type: string; text?: string }
           if (json.type === 'word' && json.text) advanceDemoCursor(json.text)
@@ -107,7 +112,7 @@ export function Workspace({ mode }: WorkspaceProps) {
       const res = await fetch('/api/generate-note', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript: text, template }),
+        body: JSON.stringify({ transcript: text, template, mode }),
       })
 
       if (!res.ok) {
@@ -151,7 +156,7 @@ export function Workspace({ mode }: WorkspaceProps) {
       setNoteError(message)
       toast({ type: 'error', message })
     }
-  }, [transcript, template, startNoteGeneration, appendNoteSection, completeNote, setNoteError, toast])
+  }, [transcript, template, mode, startNoteGeneration, appendNoteSection, completeNote, setNoteError, toast])
 
   const handleCopyNote = useCallback(async (text: string) => {
     try {
@@ -210,6 +215,7 @@ export function Workspace({ mode }: WorkspaceProps) {
     <div className="flex flex-col h-screen">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-3 bg-white border-b border-slate-100 shrink-0">
+        <button onClick={() => { stopSpeech(); demoAbortRef.current?.abort(); onHome() }} className="text-sm text-violet-600">Home</button>
         <span className="text-sm font-bold tracking-tight">
           <span className="text-slate-800">Clin</span>
           <span className="text-[#7c3aed]">Scribe</span>
@@ -217,6 +223,11 @@ export function Workspace({ mode }: WorkspaceProps) {
         <TemplateSelector value={template} transcript={transcript} note={note} onChange={handleTemplateChange} />
       </div>
 
+      <div className="px-6 py-2 bg-violet-50 text-xs text-violet-800">
+        {mode === 'demo'
+          ? 'Sample demo: prepared notes for fictional consultations. No AI credentials required. Let the full consultation finish before generating its note.'
+          : 'Live mode requires working AI credentials. If unavailable, choose Home, then Run Demo.'}
+      </div>
       {/* Split panels */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left: dark transcript panel */}

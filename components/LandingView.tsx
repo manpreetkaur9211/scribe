@@ -48,7 +48,7 @@ export function LandingView({ onSelectMode }: LandingViewProps) {
         </div>
 
         <p className="mt-6 text-xs text-slate-500 text-center">
-          Live mode requires microphone permission
+          Demo uses prepared sample notes without credentials. Live mode requires microphone permission and an available AI service.
         </p>
       </div>
 

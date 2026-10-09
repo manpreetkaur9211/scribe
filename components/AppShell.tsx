@@ -14,7 +14,7 @@ export function AppShell() {
       {mode === 'landing' ? (
         <LandingView onSelectMode={setMode} />
       ) : (
-        <Workspace mode={mode} />
+        <Workspace mode={mode} onHome={() => setMode('landing')} />
       )}
     </div>
   )

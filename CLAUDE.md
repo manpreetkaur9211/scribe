@@ -18,14 +18,14 @@ npx vitest run __tests__/parse-note-stream.test.ts
 
 ## Environment
 
-Requires `.env.local` with:
+Live AI generation optionally uses `.env.local` with:
 ```
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 AWS_REGION=
 ```
 
-`lib/env.ts` validates these with Zod at startup and throws if any are missing. The app uses AWS Bedrock (via `@ai-sdk/amazon-bedrock`) to call Claude — not the Anthropic API directly.
+`lib/env.ts` validates these on demand with getBedrockEnv; missing credentials do not block the sample demo. The app uses AWS Bedrock (via `@ai-sdk/amazon-bedrock`) to call Claude — not the Anthropic API directly.
 
 ## Architecture
 
@@ -60,7 +60,7 @@ Section keys and display labels per template are defined in `lib/note-sections.t
 
 Both routes run on the Edge runtime (`export const runtime = 'edge'`):
 
-- `app/api/generate-note/route.ts` — validates `{ transcript, template }` with Zod, calls `streamText` with `anthropic('anthropic.claude-sonnet-4-6-20251001-v1:0')`
+- `app/api/generate-note/route.ts` — validates `{ transcript, template }` with Zod, calls `streamText` with Claude Opus 4.6 through getBedrockProvider. Demo requests stream prepared notes from lib/demo-notes.ts without credentials
 - `app/api/demo-transcript/route.ts` — SSE stream of a canned script from `lib/demo-scripts.ts`, one word every 80ms
 
 ### Templates

@@ -121,6 +121,8 @@ function NoteSection({ label, content, isStreaming, isEditable, onFocus, onBlur 
           contentEditable={isEditable}
           suppressContentEditableWarning
           onFocus={onFocus}
+          onClick={onFocus}
+          tabIndex={0}
           onBlur={(e) => onBlur(ref.current?.innerText ?? '', e.relatedTarget)}
           className={`text-sm text-slate-700 leading-relaxed whitespace-pre-wrap min-h-[1.5rem] rounded px-1 -mx-1 ${
             isEditable

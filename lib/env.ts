@@ -6,12 +6,7 @@ const envSchema = z.object({
   AWS_REGION: z.string().min(1, 'AWS_REGION is required'),
 })
 
-const parsed = envSchema.safeParse(process.env)
-
-if (!parsed.success) {
-  throw new Error(
-    `Missing required environment variables:\n${parsed.error.issues.map(i => i.message).join('\n')}`
-  )
+export function getBedrockEnv() {
+  const parsed = envSchema.safeParse(process.env)
+  return parsed.success ? parsed.data : null
 }
-
-export const env = parsed.data

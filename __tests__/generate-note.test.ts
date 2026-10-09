@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 
 vi.mock('../lib/env', () => ({
-  env: {
+  getBedrockEnv: () => ({
     AWS_ACCESS_KEY_ID: 'AKIAIOSFODNN7EXAMPLE',
     AWS_SECRET_ACCESS_KEY: 'test-secret',
     AWS_REGION: 'us-east-1',
-  },
+  }),
 }))
 
 vi.mock('ai', () => ({
@@ -92,6 +92,6 @@ describe('POST /api/generate-note — model error', () => {
     const res = await POST(req)
     expect(res.status).toBe(502)
     const body = await res.json()
-    expect(body.error).toBe('Bedrock throttled')
+    expect(body.error).toContain('Live AI generation failed')
   })
 })

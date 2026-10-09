@@ -1,6 +1,8 @@
 import { streamText } from 'ai'
 import { z } from 'zod'
-import { anthropic } from '@/lib/claude'
+import { getBedrockProvider } from '@/lib/claude'
+import { getDemoScriptByTemplate } from '@/lib/demo-scripts'
+import { streamDemoNote } from '@/lib/demo-notes'
 import { buildNotePrompt } from '@/lib/prompts'
 
 export const runtime = 'edge'
@@ -8,6 +10,7 @@ export const runtime = 'edge'
 const bodySchema = z.object({
   transcript: z.string().min(10, 'Transcript must be at least 10 characters').max(5000),
   template: z.enum(['gp-note', 'specialist-referral', 'ed-triage']),
+  mode: z.enum(['live', 'demo']).default('live'),
 })
 
 export async function POST(request: Request): Promise<Response> {
@@ -26,7 +29,17 @@ export async function POST(request: Request): Promise<Response> {
     )
   }
 
-  const { transcript, template } = parsed.data
+  const { transcript, template, mode } = parsed.data
+  if (mode === 'demo') {
+    if (transcript.trim() !== getDemoScriptByTemplate(template).text.trim()) {
+      return Response.json({ error: 'Let the full sample consultation finish before generating its note.' }, { status: 400 })
+    }
+    return streamDemoNote(template, request.signal)
+  }
+  const anthropic = getBedrockProvider()
+  if (!anthropic) {
+    return Response.json({ error: 'Live AI is unavailable. Choose Home, then Run Demo to try sample notes.' }, { status: 503 })
+  }
   const prompt = buildNotePrompt(template, transcript)
 
   let result
@@ -37,7 +50,8 @@ export async function POST(request: Request): Promise<Response> {
       maxOutputTokens: 1024,
     })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Model request failed'
+    console.error('Live generation failed', err)
+    const message = 'Live AI generation failed. Try again or choose Home, then Run Demo.'
     return Response.json({ data: null, error: message }, { status: 502 })
   }
 

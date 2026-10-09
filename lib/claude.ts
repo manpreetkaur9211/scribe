@@ -1,8 +1,12 @@
 import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock'
-import { env } from './env'
+import { getBedrockEnv } from './env'
 
-export const anthropic = createAmazonBedrock({
-  accessKeyId: env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-  region: env.AWS_REGION,
-})
+export function getBedrockProvider() {
+  const env = getBedrockEnv()
+  if (!env) return null
+  return createAmazonBedrock({
+    accessKeyId: env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+    region: env.AWS_REGION,
+  })
+}
