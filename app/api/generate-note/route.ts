@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getBedrockProvider } from '@/lib/claude'
 import { getDemoScriptByTemplate } from '@/lib/demo-scripts'
 import { streamDemoNote } from '@/lib/demo-notes'
+import { isLiveAiEnabled } from '@/lib/env'
 import { buildNotePrompt } from '@/lib/prompts'
 
 export const runtime = 'edge'
@@ -36,7 +37,7 @@ export async function POST(request: Request): Promise<Response> {
     }
     return streamDemoNote(template, request.signal)
   }
-  const anthropic = getBedrockProvider()
+  const anthropic = isLiveAiEnabled() ? getBedrockProvider() : null
   if (!anthropic) {
     return Response.json({ error: 'Live AI is unavailable. Choose Home, then Run Demo to try sample notes.' }, { status: 503 })
   }

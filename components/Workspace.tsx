@@ -223,11 +223,11 @@ export function Workspace({ mode, onHome }: WorkspaceProps) {
         <TemplateSelector value={template} transcript={transcript} note={note} onChange={handleTemplateChange} />
       </div>
 
-      <div className="px-6 py-2 bg-violet-50 text-xs text-violet-800">
-        {mode === 'demo'
-          ? 'Sample demo: prepared notes for fictional consultations. No AI credentials required. Let the full consultation finish before generating its note.'
-          : 'Live mode requires working AI credentials. If unavailable, choose Home, then Run Demo.'}
-      </div>
+      {mode === 'demo' && (
+        <div className="px-6 py-2 bg-violet-50 text-xs text-violet-800">
+          Sample consultation with a prepared example note. Let the consultation finish before generating its note.
+        </div>
+      )}
       {/* Split panels */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left: dark transcript panel */}

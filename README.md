@@ -22,3 +22,5 @@ State lives in useWorkspace using React reducers. There is no authentication, da
 - npm test
 - npm run lint
 - npm run build
+
+Live mode is disabled by default. After verifying working Bedrock access, set LIVE_AI_ENABLED=true along with all three AWS variables. The server passes only an availability boolean to the UI; credentials stay on the server. Both the landing button and live API enforce this setting.

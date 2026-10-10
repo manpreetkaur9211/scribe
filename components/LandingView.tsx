@@ -1,10 +1,11 @@
 import type { AppMode } from '@/types/workspace'
 
 interface LandingViewProps {
+  liveAvailable: boolean
   onSelectMode: (mode: Exclude<AppMode, 'landing'>) => void
 }
 
-export function LandingView({ onSelectMode }: LandingViewProps) {
+export function LandingView({ onSelectMode, liveAvailable }: LandingViewProps) {
   return (
     <div className="relative min-h-screen flex flex-col">
       {/* Split background */}
@@ -31,7 +32,9 @@ export function LandingView({ onSelectMode }: LandingViewProps) {
         <div className="flex gap-4 w-full max-w-sm">
           <button
             onClick={() => onSelectMode('live')}
-            className="flex-1 flex items-center justify-center gap-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-semibold py-4 px-6 rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7c3aed]"
+            disabled={!liveAvailable}
+            aria-describedby="mode-availability"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#7c3aed] hover:bg-[#6d28d9] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7c3aed]"
             aria-label="Try live mode with microphone"
           >
             <MicIcon />
@@ -47,8 +50,8 @@ export function LandingView({ onSelectMode }: LandingViewProps) {
           </button>
         </div>
 
-        <p className="mt-6 text-xs text-slate-500 text-center">
-          Demo uses prepared sample notes without credentials. Live mode requires microphone permission and an available AI service.
+        <p id="mode-availability" className="mt-6 text-xs text-slate-500 text-center">
+          {liveAvailable ? 'Live mode requires microphone permission.' : 'Live mode is currently unavailable. Try a sample consultation with Run Demo.'}
         </p>
       </div>
 

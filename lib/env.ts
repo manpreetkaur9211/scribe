@@ -10,3 +10,7 @@ export function getBedrockEnv() {
   const parsed = envSchema.safeParse(process.env)
   return parsed.success ? parsed.data : null
 }
+
+export function isLiveAiEnabled() {
+  return process.env.LIVE_AI_ENABLED === 'true' && getBedrockEnv() !== null
+}

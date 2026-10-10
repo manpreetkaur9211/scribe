@@ -74,3 +74,5 @@ Three templates: `gp-note`, `specialist-referral`, `ed-triage`. Each maps to a s
 ## Testing
 
 Tests live in `__tests__/`. Vitest is configured with jsdom. React component tests use `@testing-library/react`. The env test (`__tests__/env.test.ts`) stubs `process.env` — always call `unstubAllEnvs` in `afterEach` to avoid leaking env state across tests.
+
+Live mode is disabled by default. After verifying working Bedrock access, set LIVE_AI_ENABLED=true along with all three AWS variables. The server passes only an availability boolean to the UI; credentials stay on the server. Both the landing button and live API enforce this setting.

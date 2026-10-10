@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 
 vi.mock('../lib/env', () => ({
+  isLiveAiEnabled: () => true,
   getBedrockEnv: () => ({
     AWS_ACCESS_KEY_ID: 'AKIAIOSFODNN7EXAMPLE',
     AWS_SECRET_ACCESS_KEY: 'test-secret',
